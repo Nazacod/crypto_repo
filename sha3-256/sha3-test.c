@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
-#define OPTIONS "hvl:i:o:"
+#define OPTIONS "hw"
 
 void print_usage(char **argv) {
     fprintf(stderr,
@@ -14,34 +15,24 @@ void print_usage(char **argv) {
         "   Hashes inputs using the SHA-3 256 algorithm.\n"
         "\n"
         "USAGE\n"
-        "   %s [-hv] -l length [-i input] [-o output]\n"
+        "   %s [-h] -w word \n"
         "\n"
         "OPTIONS\n"
         "   -h          Display program help and usage\n"
-        "   -v          Display verbose program output\n"
-        "   -l length   Length of input in bytes\n"
-        "   -i input    Specify input to hash (stdin by default)\n",
+        "   -w word     Input word\n",
         argv[0]);
 }
 
-void hash_file(int64_t length, FILE *infile) {
-    uint8_t *msg = (uint8_t *)calloc(length ? length : 1, sizeof(uint8_t));
-    check(msg, "Failed to allocate array for message.\n");
-
-    fread(msg, sizeof(uint8_t), length, infile);
-
+void hash_file(char *msg, int64_t length) {
     uint8_t md[SHA3_256_MD_LEN] = { 0 };
-    sha3_256_digest(msg, length, md);
-
+    sha3_256_digest((uint8_t *)msg, length, md);
     hexprint(SHA3_256_MD_LEN, md);
-
-    free(msg);
 }
 
 int main(int argc, char **argv) {
+    char *word;
     int opt = 0;
     int64_t length = -1;
-    FILE *infile = stdin;
 
     verbose = true;
     
@@ -50,12 +41,8 @@ int main(int argc, char **argv) {
         case 'h':
             print_usage(argv);
             return 0;
-        case 'l':
-            length = (int64_t)strtoll(optarg, NULL, 10);
-            break;
-        case 'i':
-            infile = fopen(optarg, "rb");
-            check(infile, "Failed to open %s.\n", optarg);
+        case 'w':
+            word = optarg;
             break;
         default:
             print_usage(argv);
@@ -63,10 +50,10 @@ int main(int argc, char **argv) {
         }
     }
 
+    length = strlen(word);
     check(length >= 0, "Valid message length must be supplied.\n");
 
-    hash_file(length, infile);
+    hash_file(word, length);
 
-    fclose(infile);
     return 0;
 }

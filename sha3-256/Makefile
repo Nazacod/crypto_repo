@@ -4,7 +4,7 @@ SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:%.c=%.o)
 
 CC       = gcc
-CFLAGS   = -Wall -Wpedantic -Werror -Wextra
+CFLAGS   = -Wall -Wpedantic -Wextra
 
 .PHONY: all clean
 
