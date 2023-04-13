@@ -31,23 +31,20 @@ void hash_file(char *msg, int64_t length) {
 
 int main(int argc, char **argv) {
     char *word;
-    int opt = 0;
     int64_t length = -1;
 
     verbose = true;
-    
-    while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
-        switch (opt) {
-        case 'h':
-            print_usage(argv);
-            return 0;
-        case 'w':
-            word = optarg;
-            break;
-        default:
-            print_usage(argv);
-            return 1;
-        }
+
+    if (strcmp(argv[1], "-h") == 0) {
+        print_usage(argv);
+        return 0;
+    }
+    if ((strcmp(argv[1], "-w") == 0) && (argc > 2)) {
+        word = argv[2];
+    }
+    if ((strcmp(argv[1], "-h") != 0) && strcmp(argv[1],"-w") != 0) {
+        print_usage(argv);
+        return 0;
     }
 
     length = strlen(word);
